@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 
-const SIGNALING_SERVER_URL = "http://localhost:4000";
+const SIGNALING_SERVER_URL = "https://videocallbackend-r32a.onrender.com";
 const ICE_SERVERS = [{ urls: "stun:stun.l.google.com:19302" }];
 
 export default function App() {
