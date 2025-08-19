@@ -23,10 +23,7 @@ export default function App() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: true,
-       audio: {
-    echoCancellation: false,
-    noiseSuppression: false
-  }
+        audio: true,
       });
       localStreamRef.current = stream;
       localVideoRef.current.srcObject = stream;
