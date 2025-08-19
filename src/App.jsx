@@ -67,9 +67,7 @@ export default function App() {
       setJoined(true);
     });
 
-    // if another peer is already in the room, create offer
     socketRef.current.on("other-user", async ({ socketId }) => {
-      console.log("Other user:", socketId);
       const pc = createPeerConnection(socketId);
       localStreamRef.current
         .getTracks()
@@ -83,7 +81,6 @@ export default function App() {
       });
     });
 
-    // incoming offer -> answer
     socketRef.current.on("offer", async ({ from, sdp }) => {
       const pc = createPeerConnection(from);
       localStreamRef.current
@@ -99,12 +96,10 @@ export default function App() {
       });
     });
 
-    // incoming answer
     socketRef.current.on("answer", async ({ sdp }) => {
       await peerConnectionRef.current.setRemoteDescription(sdp);
     });
 
-    // incoming ICE
     socketRef.current.on("ice-candidate", async ({ candidate }) => {
       try {
         await peerConnectionRef.current.addIceCandidate(candidate);
@@ -113,7 +108,6 @@ export default function App() {
       }
     });
 
-    // other user left
     socketRef.current.on("user-left", () => {
       console.log("Peer disconnected");
       leaveRoom();
@@ -153,53 +147,61 @@ export default function App() {
   }
 
   return (
-    <div className="p-4">
-      <h1 className="text-xl mb-4">Peer-to-Peer Video Call</h1>
-      <div className="flex gap-4">
-        <div>
-          <div>Local</div>
+    <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-6">
+      <h1 className="text-3xl font-bold mb-6 text-center">
+        🎥 Peer-to-Peer Video Call
+      </h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-5xl">
+        {/* Local Video */}
+        <div className="flex flex-col items-center bg-gray-800 rounded-2xl shadow-lg p-4">
+          <span className="text-lg font-semibold mb-2">Local</span>
           <video
             ref={localVideoRef}
             autoPlay
             playsInline
             muted
-            style={{ width: 300, background: "#000" }}
+            className="w-full h-64 bg-black rounded-lg shadow-md object-cover"
           />
-          {!joined ? (
+          <div className="mt-4 flex flex-wrap gap-2 justify-center">
+            {!joined ? (
+              <button
+                onClick={joinRoom}
+                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md transition-all"
+              >
+                Join
+              </button>
+            ) : (
+              <button
+                onClick={leaveRoom}
+                className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl shadow-md transition-all"
+              >
+                Leave
+              </button>
+            )}
             <button
-              onClick={joinRoom}
-              className="px-4 py-2 bg-blue-600 text-white rounded mt-2"
+              onClick={toggleMute}
+              className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-xl shadow"
             >
-              Join
+              🔇 Mute
             </button>
-          ) : (
             <button
-              onClick={leaveRoom}
-              className="px-4 py-2 bg-red-600 text-white rounded mt-2"
+              onClick={toggleCamera}
+              className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-xl shadow"
             >
-              Leave
+              🎥 Camera
             </button>
-          )}
-          <button
-            onClick={toggleMute}
-            className="ml-2 px-3 py-1 border rounded"
-          >
-            Mute
-          </button>
-          <button
-            onClick={toggleCamera}
-            className="ml-2 px-3 py-1 border rounded"
-          >
-            Camera
-          </button>
+          </div>
         </div>
-        <div>
-          <div>Remote</div>
+
+        {/* Remote Video */}
+        <div className="flex flex-col items-center bg-gray-800 rounded-2xl shadow-lg p-4">
+          <span className="text-lg font-semibold mb-2">Remote</span>
           <video
             ref={remoteVideoRef}
             autoPlay
             playsInline
-            style={{ width: 300, background: "#000" }}
+            className="w-full h-64 bg-black rounded-lg shadow-md object-cover"
           />
         </div>
       </div>
